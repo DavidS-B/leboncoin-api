@@ -22,7 +22,7 @@ const User = mongoose.model("User", {
 });
 
 // Sign Up
-app.post("/api/user/sign_up", async (req, res) => {
+app.post("/direct/sign_up", async (req, res) => {
   try {
     const pseudo = req.body.pseudo;
     const email = req.body.email;
@@ -31,8 +31,7 @@ app.post("/api/user/sign_up", async (req, res) => {
     const salt = uid2(16);
     const saltedPassword = password + salt;
     const hash = SHA256(saltedPassword).toString(encBase64);
-    console.log(salt);
-    console.log(password);
+
     const newUser = await new User({
       pseudo: pseudo,
       email: email,
@@ -55,16 +54,13 @@ app.post("/api/user/sign_up", async (req, res) => {
 });
 
 // Log In
-app.post("/api/user/log_in", async (req, res) => {
+app.post("/direct/log_in", async (req, res) => {
   const pseudo = req.body.pseudo;
   const password = req.body.password;
 
   const userFound = await User.findOne({ pseudo: pseudo });
-  console.log(userFound);
   if (userFound) {
     const hash = SHA256(password + userFound.salt).toString(encBase64);
-    console.log(userFound.hash);
-    console.log(hash);
     if (userFound.hash === hash) {
       return res.json({
         token: userFound.token,
@@ -73,8 +69,7 @@ app.post("/api/user/log_in", async (req, res) => {
       });
     }
   } else {
-    console.log("yo");
-    // return res.status(400).json({ message: "Unauthorized" });
+    return res.status(400).json({ message: "Unauthorized" });
   }
 });
 
