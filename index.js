@@ -4,14 +4,16 @@ const SHA256 = require("crypto-js/sha256");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const express = require("express");
+const helmet = require("helmet");
 const uid2 = require("uid2");
 const cors = require("cors");
 const app = express();
-app.use(bodyParser.json());
 app.use(cors());
+app.use(helmet());
+app.use(bodyParser.json());
 
 mongoose.connect(
-  process.env.MONGODB_URI || "mongodb://localhost/leboncoin-api",
+  process.env.MONGODB_URI /* || "mongodb://localhost/leboncoin-api"  */,
   {
     useNewUrlParser: true
   }
@@ -77,6 +79,12 @@ app.post("/direct/log_in", async (req, res) => {
   }
 });
 
-app.listen(process.env.PORT || 3000, () => {
-  console.log("Server started");
+app.listen(process.env.PORT, () => {
+  console.log(
+    "==> URI : " +
+      process.env.MONGODB_URI +
+      " ==> PORT :" +
+      process.env.PORT +
+      " <======> Server started <======>"
+  );
 });
