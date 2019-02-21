@@ -1,3 +1,4 @@
+require("dotenv").config();
 const encBase64 = require("crypto-js/enc-base64");
 const SHA256 = require("crypto-js/sha256");
 const bodyParser = require("body-parser");
