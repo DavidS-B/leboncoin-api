@@ -1,14 +1,16 @@
 require("dotenv").config();
-const encBase64 = require("crypto-js/enc-base64");
-const SHA256 = require("crypto-js/sha256");
+
+const express = require("express");
+const app = express();
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
-const express = require("express");
+// const compression = require("compression");
 const helmet = require("helmet");
-const uid2 = require("uid2");
 const cors = require("cors");
-const app = express();
-app.use(cors());
+const SHA256 = require("crypto-js/sha256");
+const encBase64 = require("crypto-js/enc-base64");
+const uid2 = require("uid2");
+
 app.use(helmet());
 app.use(bodyParser.json());
 
@@ -77,6 +79,10 @@ app.post("/direct/log_in", async (req, res) => {
   } else {
     return res.status(400).json({ message: "Unauthorized" });
   }
+});
+
+app.all("*", function(req, res) {
+  res.status(400).send("Page not found");
 });
 
 app.listen(process.env.PORT, () => {
