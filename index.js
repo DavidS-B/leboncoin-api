@@ -9,9 +9,12 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-mongoose.connect("mongodb://localhost/leboncoin-api", {
-  useNewUrlParser: true
-});
+mongoose.connect(
+  process.env.MONGODB_URI || "mongodb://localhost/leboncoin-api",
+  {
+    useNewUrlParser: true
+  }
+);
 
 const User = mongoose.model("User", {
   pseudo: String,
