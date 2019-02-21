@@ -1,96 +1,50 @@
 require("dotenv").config();
-
-const express = require("express");
-const app = express();
-const bodyParser = require("body-parser");
-const mongoose = require("mongoose");
-// const compression = require("compression");
-const helmet = require("helmet");
-const cors = require("cors");
-const SHA256 = require("crypto-js/sha256");
-const encBase64 = require("crypto-js/enc-base64");
-const uid2 = require("uid2");
-
-app.use(helmet());
-app.use(bodyParser.json());
-
+var mongoose = require("mongoose");
 mongoose.connect(
-  process.env.MONGODB_URI /* || "mongodb://localhost/leboncoin-api"  */,
+  process.env.MONGODB_URI,
   {
     useNewUrlParser: true
+  },
+  function(err) {
+    if (err) console.error("Could not connect to mongodb.");
   }
 );
+var express = require("express");
+var app = express();
+var helmet = require("helmet");
+app.use(helmet());
+var compression = require("compression");
+app.use(compression());
+var bodyParser = require("body-parser");
+app.use(bodyParser.json({ limit: "50mb" }));
+var User = require("./models/User");
 
-const User = mongoose.model("User", {
-  pseudo: String,
-  email: String,
-  hash: String,
-  salt: String,
-  token: String
+app.get("/", function(req, res) {
+  res.send("Welcome to the my API.");
 });
 
-// Sign Up
-app.post("/direct/sign_up", async (req, res) => {
-  try {
-    const pseudo = req.body.pseudo;
-    const email = req.body.email;
-    const password = req.body.password;
-    const token = uid2(16);
-    const salt = uid2(16);
-    const saltedPassword = password + salt;
-    const hash = SHA256(saltedPassword).toString(encBase64);
+var cors = require("cors");
+app.use("/api", cors());
 
-    const newUser = await new User({
-      pseudo: pseudo,
-      email: email,
-      hash: hash,
-      salt: salt,
-      token: token
-    });
+var coreRoutes = require("./routes/core.js");
+var userRoutes = require("./routes/user.js");
+var offerRoutes = require("./routes/offer.js");
 
-    await newUser.save();
-
-    res.json({
-      token: token,
-      id: newUser._id,
-      pseudo: newUser.pseudo,
-      email: newUser.email
-    });
-  } catch (error) {
-    res.status(400).json({ message: "An error occurred" });
-  }
-});
-
-// Log In
-app.post("/direct/log_in", async (req, res) => {
-  const pseudo = req.body.pseudo;
-  const password = req.body.password;
-
-  const userFound = await User.findOne({ pseudo: pseudo });
-  if (userFound) {
-    const hash = SHA256(password + userFound.salt).toString(encBase64);
-    if (userFound.hash === hash) {
-      return res.json({
-        token: userFound.token,
-        id: userFound._id,
-        pseudo: userFound.pseudo
-      });
-    }
-  } else {
-    return res.status(400).json({ message: "Unauthorized" });
-  }
-});
+app.use("/api", coreRoutes);
+app.use("/api/user", userRoutes);
+app.use("/api/offer", offerRoutes);
 
 app.all("*", function(req, res) {
-  res.status(400).send("Page not found");
+  res.status(404).json({ error: "Not Found" });
 });
 
-app.listen(process.env.PORT, () => {
-  console.log(
-    "==> URI : " +
-      process.env.MONGODB_URI +
-      " ==> PORT :" +
-      process.env.PORT +
-      " <======> Server started <======>"
-  );
+app.use(function(err, req, res, next) {
+  if (res.statusCode === 200) res.status(400);
+  console.error(err);
+  res.json({ error: err });
+});
+
+app.listen(process.env.PORT, function() {
+  console.log(`leboncoin API running on port ${process.env.PORT}`);
+  console.log(`Current environment is ${process.env.NODE_ENV}`);
 });
