@@ -2,9 +2,7 @@ require("dotenv").config();
 var mongoose = require("mongoose");
 mongoose.connect(
   process.env.MONGODB_URI,
-  {
-    useNewUrlParser: true
-  },
+  { useCreateIndex: true, useNewUrlParser: true },
   function(err) {
     if (err) console.error("Could not connect to mongodb.");
   }

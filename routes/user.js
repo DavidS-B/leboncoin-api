@@ -8,7 +8,7 @@ var isAuthenticated = require("../middlewares/isAuthenticated");
 
 var User = require("../models/User.js");
 
-router.post("/direct/sign_up", function(req, res, next) {
+router.post("/sign_up", function(req, res, next) {
   const token = uid2(64);
   const salt = uid2(64);
   const hash = SHA256(req.body.password + salt).toString(encBase64);
@@ -23,6 +23,7 @@ router.post("/direct/sign_up", function(req, res, next) {
       phone: req.body.phone
     }
   });
+  console.log(user.account);
   user.save(function(err) {
     if (err) {
       return next(err.message);
@@ -36,7 +37,7 @@ router.post("/direct/sign_up", function(req, res, next) {
   });
 });
 
-router.post("/direct/log_in", function(req, res, next) {
+router.post("/log_in", function(req, res, next) {
   User.findOne({ pseudo: req.body.pseudo }).exec(function(err, user) {
     if (err) return next(err.message);
     if (user) {
