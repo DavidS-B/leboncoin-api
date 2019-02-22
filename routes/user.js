@@ -38,7 +38,7 @@ router.post("/sign_up", function(req, res, next) {
 });
 
 router.post("/log_in", function(req, res, next) {
-  User.findOne({ pseudo: req.body.pseudo }).exec(function(err, user) {
+  User.findOne({ email: req.body.email }).exec(function(err, user) {
     if (err) return next(err.message);
     if (user) {
       if (
