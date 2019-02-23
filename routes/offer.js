@@ -236,6 +236,7 @@ router.post("/publish", isAuthenticated, uploadPictures, function(
     creator: req.user
   };
   var offer = new Offer(obj);
+  console.log(offer);
   offer.save(function(err) {
     if (!err) {
       return res.json({
